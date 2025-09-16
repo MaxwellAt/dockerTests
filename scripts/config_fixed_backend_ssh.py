@@ -225,7 +225,7 @@ def testar_configuracao(stack, cpu, ram, k6_script, page, app_url, repeticoes, s
             erro_k6 = None
             k6_metrics_summary = None
             try:
-                executar_k6(k6_script, output_path, base_url=base_url, metrics_path=metrics_path)
+                executar_k6(k6_script, None, base_url=base_url, metrics_path=metrics_path, save_raw=False)
             except Exception as e:
                 erro_k6 = str(e)
             metrics_json = ssh_metrics.stop_parallel_collection()
