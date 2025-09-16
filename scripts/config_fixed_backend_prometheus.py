@@ -17,12 +17,12 @@ from main import (
     extrair_url_container, executar_k6, excluir_container_ate_sucesso, extrair_info_container
 )
 
-CPU_MIN = 0.5
+CPU_MIN = 1
 RAM_MIN = 1024
-CPU_INC = 0.1
-RAM_INC = 128
-CPU_MAX = 1
-RAM_MAX = 1024
+CPU_INC = 1
+RAM_INC = 1024
+CPU_MAX = 2
+RAM_MAX = 2048
 TZ = timezone(timedelta(hours=-3))  # UTC-3
 
 def carregar_config():
@@ -108,12 +108,12 @@ def testar_configuracao(stack, cpu, ram, k6_script, page, app_url, repeticoes):
             prefix = container_info.get('id')
             backend_name = f"{prefix}-backend-1"
             database_name = f"{prefix}-database-1"
-            output_path = f"resultados/{nome}.json"
+            output_path = None  # não salvar JSON bruto
             metrics_path = f"resultados/{nome}_metrics.json"
             erro_k6 = None
             k6_metrics_summary = None
             try:
-                executar_k6(k6_script, output_path, base_url=base_url, metrics_path=metrics_path)
+                executar_k6(k6_script, output_path, base_url=base_url, metrics_path=metrics_path, save_raw=False)
             except Exception as e:
                 erro_k6 = str(e)
             fim = datetime.now(TZ)

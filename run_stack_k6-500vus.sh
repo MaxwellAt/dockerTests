@@ -11,7 +11,7 @@ STACKS="node-postgres"                 # Stacks a testar
 PASTA_K6="tests k6"                    # Pasta correta dos scripts K6
 # Lista de scripts de teste K6 a serem usados
 TESTES_K6=(
-    "delete_users_50vus.js"
+    "delete_users_500vus.js"
 )
 # === CONFIGURAÇÃO FIM ===
 

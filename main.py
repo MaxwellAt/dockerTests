@@ -71,20 +71,27 @@ def aguardar_container_ativo(page) -> None:
         page.wait_for_timeout(2000)
     raise TimeoutError('Mensagem de sucesso do container não detectada. Ajuste o seletor se necessário.')
 
-def executar_k6(script_path: str, output_path: str, base_url: str = None, metrics_path: str = None):
+def executar_k6(script_path: str, output_path: str = None, base_url: str = None, metrics_path: str = None, save_raw: bool = False):
     """
-    Executa o teste de carga com K6 e salva o resultado em output_path.
-    Se base_url for fornecido, passa como variável de ambiente para o K6.
-    Também salva as métricas finais em metrics_path, se fornecido.
-    Sempre salva o summary do K6, o exit code e se os thresholds foram atingidos.
+    Executa o teste de carga com K6.
+    - Quando save_raw=True e output_path for fornecido, gera o JSON bruto via "--out json=...".
+    - Sempre que metrics_path for fornecido, exporta o summary para esse caminho.
+    Também salva no metrics_path: exit code, thresholds e métricas do summary.
     """
     import tempfile
     import json as pyjson
     import shutil
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    cmd = [
-        "k6", "run", f"--out", f"json={output_path}", script_path
-    ]
+
+    # Garante que a pasta de saída existe, priorizando metrics_path; se save_raw estiver ativo, usa output_path também
+    if metrics_path:
+        os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    elif save_raw and output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    cmd = ["k6", "run"]
+    if save_raw and output_path:
+        cmd += ["--out", f"json={output_path}"]
+    cmd += [script_path]
     if base_url:
         cmd += ["--env", f"BASE_URL={base_url}"]
     summary_data = None
@@ -293,9 +300,9 @@ def executar_fluxo_de_teste(cenario: dict, page, app_url=None):
     # Valida compatibilidade
     comparar_info_container(container_info, cenario)
     script_path = cenario['k6_script']
-    output_path = f"resultados/{cenario['nome']}.json"
+    output_path = None  # não salvar JSON bruto
     metrics_path = f"resultados/{cenario['nome']}_metrics.json"
-    executar_k6(script_path, output_path, base_url=base_url, metrics_path=metrics_path)
+    executar_k6(script_path, output_path, base_url=base_url, metrics_path=metrics_path, save_raw=False)
     fim = datetime.now(TZ)
     duracao = (fim - inicio).total_seconds()
     # Adiciona as informações do container e do teste ao metrics.json
