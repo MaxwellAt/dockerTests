@@ -1,1 +1,16 @@
-*.json
+# Ignorar artefatos de execução
+resultados/
+*.tar.gz
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VSCode/IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Nota: não ignorar *.json globalmente para permitir versionar configs e docs JSON
